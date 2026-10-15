@@ -1,0 +1,1394 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, maximum-scale=1, user-scalable=no">
+<title>Rig Editor — Clivor</title>
+<style>
+  :root {
+    --bg: #0e0b06;
+    --panel: #1a140c;
+    --panel2: #221a10;
+    --gold: #d8ab4a;
+    --gold-dim: #8a6f3a;
+    --text: #f2e8d0;
+    --text-dim: #a89878;
+    --danger: #c0503a;
+    --accent: #4a90a8;
+  }
+  * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
+  html, body {
+    margin: 0; padding: 0;
+    background: var(--bg);
+    color: var(--text);
+    font-family: 'Segoe UI', system-ui, sans-serif;
+    font-size: 14px;
+    overscroll-behavior: none;
+  }
+  h1 {
+    font-size: 1.05rem;
+    letter-spacing: 1px;
+    color: var(--gold);
+    margin: 0;
+    padding: 14px 16px 10px;
+    border-bottom: 1px solid rgba(216,171,74,0.25);
+  }
+  h1 small {
+    display: block;
+    font-size: 0.65rem;
+    color: var(--text-dim);
+    letter-spacing: 0.5px;
+    margin-top: 2px;
+    font-weight: normal;
+  }
+  .wrap { max-width: 480px; margin: 0 auto; padding-bottom: 40px; }
+  section {
+    background: var(--panel);
+    margin: 10px 12px;
+    border-radius: 10px;
+    border: 1px solid rgba(216,171,74,0.15);
+    overflow: hidden;
+  }
+  section > .sec-head {
+    padding: 8px 12px;
+    font-size: 0.72rem;
+    letter-spacing: 1px;
+    color: var(--gold-dim);
+    text-transform: uppercase;
+    border-bottom: 1px solid rgba(216,171,74,0.12);
+  }
+  section > .sec-body { padding: 10px 12px; }
+
+  /* ── Canvas ── */
+  .scene-toolbar {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 10px;
+    flex-wrap: wrap;
+    padding: 8px 12px 0;
+  }
+  .scene-toolbar .chk {
+    display: flex;
+    align-items: center;
+    gap: 5px;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+  .scene-toolbar .chk input[type=checkbox] { accent-color: var(--gold); width: 14px; height: 14px; }
+  .size-input {
+    width: 44px;
+    background: var(--panel2);
+    color: var(--gold);
+    border: 1px solid rgba(216,171,74,0.4);
+    border-radius: 4px;
+    text-align: center;
+    padding: 2px 3px;
+    font-size: 0.72rem;
+    font-family: inherit;
+  }
+  .size-input:disabled { opacity: 0.4; }
+  .zoom-controls {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    font-size: 0.72rem;
+    color: var(--text-dim);
+  }
+  .zoom-controls button { padding: 4px 10px; }
+  #zoomLabel { min-width: 38px; text-align: center; cursor: pointer; }
+  #canvasHost {
+    display: flex;
+    justify-content: center;
+    padding: 12px;
+    overflow: auto;
+    background: repeating-conic-gradient(#20180f 0% 25%, #17110a 0% 50%) 50% / 20px 20px;
+  }
+  #stage {
+    touch-action: none;
+    border: 1px solid rgba(216,171,74,0.3);
+    border-radius: 6px;
+    background: transparent;
+    flex-shrink: 0;
+  }
+  .hint {
+    font-size: 0.68rem;
+    color: var(--text-dim);
+    text-align: center;
+    padding: 6px 12px 0;
+  }
+
+  /* ── Buttons / inputs ── */
+  button {
+    font-family: inherit;
+    font-size: 0.78rem;
+    padding: 8px 12px;
+    border-radius: 6px;
+    border: 1px solid rgba(216,171,74,0.4);
+    background: var(--panel2);
+    color: var(--text);
+    cursor: pointer;
+  }
+  button:active { background: rgba(216,171,74,0.25); }
+  button.primary { background: rgba(216,171,74,0.18); border-color: var(--gold); color: var(--gold); font-weight: 600; }
+  button.danger { border-color: rgba(192,80,58,0.6); color: #e08a78; }
+  button.small { padding: 4px 8px; font-size: 0.68rem; }
+  button:disabled { opacity: 0.35; cursor: default; }
+  input[type=text], input[type=number], select {
+    font-family: inherit;
+    font-size: 0.78rem;
+    background: var(--panel2);
+    color: var(--text);
+    border: 1px solid rgba(216,171,74,0.3);
+    border-radius: 6px;
+    padding: 7px 8px;
+    width: 100%;
+  }
+  label.field {
+    display: block;
+    font-size: 0.66rem;
+    color: var(--text-dim);
+    margin: 8px 0 3px;
+    letter-spacing: 0.5px;
+  }
+  .row { display: flex; gap: 8px; align-items: center; }
+  .row > * { flex: 1; }
+  .btn-row { display: flex; gap: 8px; flex-wrap: wrap; margin-top: 8px; }
+  input[type=range] { width: 100%; accent-color: var(--gold); }
+  .slider-val { font-size: 0.68rem; color: var(--gold-dim); float: right; }
+
+  /* ── Layer list ── */
+  .layer-row {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 7px 6px;
+    border-radius: 6px;
+    margin-bottom: 4px;
+    background: var(--panel2);
+    border: 1px solid transparent;
+  }
+  .layer-row.sel { border-color: var(--gold); background: rgba(216,171,74,0.12); }
+  .layer-row .name {
+    flex: 1;
+    font-size: 0.78rem;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    background: transparent;
+    border: none;
+    color: var(--text);
+    padding: 2px;
+  }
+  .layer-row .thumb {
+    width: 26px; height: 26px;
+    background: #000;
+    border-radius: 4px;
+    object-fit: contain;
+    border: 1px solid rgba(216,171,74,0.25);
+  }
+  .icon-btn {
+    background: transparent;
+    border: none;
+    color: var(--text-dim);
+    font-size: 0.85rem;
+    padding: 3px 5px;
+    cursor: pointer;
+  }
+  .icon-btn:active { color: var(--gold); }
+  .empty-msg { font-size: 0.72rem; color: var(--text-dim); font-style: italic; padding: 6px 2px; }
+
+  /* ── Pose list ── */
+  .pose-chip {
+    display: inline-flex;
+    align-items: center;
+    gap: 6px;
+    background: var(--panel2);
+    border: 1px solid rgba(216,171,74,0.3);
+    border-radius: 14px;
+    padding: 5px 10px 5px 12px;
+    font-size: 0.72rem;
+    margin: 3px 4px 3px 0;
+  }
+  .pose-chip button { padding: 0 4px; border: none; background: none; color: var(--danger); font-size: 0.85rem; }
+  .pose-chip.active { border-color: var(--gold); color: var(--gold); }
+
+  #fileInput, #importInput { display: none; }
+  footer {
+    text-align: center;
+    font-size: 0.62rem;
+    color: var(--text-dim);
+    padding: 20px 12px 8px;
+  }
+</style>
+</head>
+<body>
+
+<h1>🎏 Rig Editor
+  <small>Animação por camadas (cutout) — Chronicles of Clivor</small>
+</h1>
+
+<div class="wrap">
+
+  <section>
+    <div class="sec-head">Personagem</div>
+    <div class="sec-body">
+      <input type="text" id="charName" placeholder="ex: arqueiro, mago, assassino...">
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">Cena</div>
+    <div class="scene-toolbar">
+      <span class="chk">Tamanho: <input type="number" id="inpSizeW" class="size-input" min="1" step="1"> × <input type="number" id="inpSizeH" class="size-input" min="1" step="1"> px</span>
+      <div class="zoom-controls">
+        <label class="chk" style="margin-right:6px;"><input type="checkbox" id="chkGrid"> Grade</label>
+        <button class="small" id="btnZoomOut">－</button>
+        <span id="zoomLabel" title="Toque pra voltar a 100%">100%</span>
+        <button class="small" id="btnZoomIn">＋</button>
+      </div>
+    </div>
+    <div id="canvasHost">
+      <canvas id="stage" width="320" height="320"></canvas>
+    </div>
+    <div class="hint">Toque direto numa camada na cena (ou na lista abaixo) pra selecionar, depois arraste pra mover. Defina um "Pai" na camada pra ela seguir junto quando o pai girar/mover (ex: mão → pai: antebraço → pai: braço). Ao arrastar, a camada gruda no centro, na grade e em outras camadas alinhadas — um vibração curta confirma o encaixe.</div>
+  </section>
+
+  <section>
+    <div class="sec-head">Camadas</div>
+    <div class="sec-body">
+      <div id="layerList"></div>
+      <div class="btn-row">
+        <button class="primary" id="btnAddLayer">➕ Adicionar imagens</button>
+      </div>
+      <input type="file" id="fileInput" accept="image/*" multiple>
+    </div>
+  </section>
+
+  <section id="transformSection" style="display:none;">
+    <div class="sec-head">Transformação da camada selecionada</div>
+    <div class="sec-body">
+      <label class="field">Pai (bone pai) — gira/move junto com ele</label>
+      <select id="selParent"></select>
+
+      <label class="field">Rotação <span class="slider-val" id="valRot">0°</span></label>
+      <input type="range" id="rangeRot" min="-180" max="180" step="1" value="0">
+
+      <label class="field">Escala <span class="slider-val" id="valScale">1.00×</span></label>
+      <input type="range" id="rangeScale" min="50" max="150" step="1" value="100">
+
+      <label class="field">Pivô horizontal (ponto de giro) <span class="slider-val" id="valPivU">50%</span></label>
+      <input type="range" id="rangePivU" min="0" max="100" step="1" value="50">
+
+      <label class="field">Pivô vertical (ponto de giro) <span class="slider-val" id="valPivV">50%</span></label>
+      <input type="range" id="rangePivV" min="0" max="100" step="1" value="50">
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">Poses</div>
+    <div class="sec-body">
+      <label class="field">Nome da pose</label>
+      <div class="row">
+        <select id="poseNamePreset">
+          <option value="idle">idle</option>
+          <option value="prepare">prepare</option>
+          <option value="attack">attack</option>
+          <option value="attack2">attack2</option>
+          <option value="recover">recover</option>
+          <option value="hit">hit</option>
+          <option value="hit2">hit2</option>
+          <option value="defend">defend</option>
+          <option value="tak">tak</option>
+          <option value="fusion1">fusion1</option>
+          <option value="fusion2">fusion2</option>
+          <option value="shield">shield</option>
+          <option value="__custom">outro (digitar)...</option>
+        </select>
+      </div>
+      <input type="text" id="poseNameCustom" placeholder="nome da pose" style="display:none; margin-top:6px;">
+      <div class="btn-row">
+        <button class="primary" id="btnSavePose">💾 Salvar pose atual</button>
+      </div>
+      <div id="poseList" style="margin-top:10px;"></div>
+      <div class="empty-msg" id="poseEmptyMsg">Nenhuma pose salva ainda.</div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">Prévia (transição entre poses)</div>
+    <div class="sec-body">
+      <div class="row">
+        <div>
+          <label class="field">De</label>
+          <select id="prevFrom"></select>
+        </div>
+        <div>
+          <label class="field">Para</label>
+          <select id="prevTo"></select>
+        </div>
+      </div>
+      <label class="field">Duração (ms)</label>
+      <input type="number" id="prevDur" value="220" min="20" max="3000" step="10">
+      <div class="btn-row">
+        <button class="primary" id="btnPreview">▶ Tocar prévia</button>
+        <button id="btnPreviewLoop">🔁 Prévia em loop</button>
+        <button id="btnStopPreview" class="danger" disabled>⏹ Parar</button>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <div class="sec-head">Projeto</div>
+    <div class="sec-body">
+      <div class="btn-row">
+        <button class="primary" id="btnExport">⬇ Baixar projeto (.json)</button>
+        <button id="btnImport">⬆ Carregar projeto</button>
+        <button class="danger" id="btnReset">🗑 Novo projeto</button>
+      </div>
+      <div class="btn-row">
+        <button id="btnExportPNG">🖼 Baixar imagem (.png)</button>
+        <button id="btnExportJPEG">🖼 Baixar imagem (.jpeg)</button>
+      </div>
+      <input type="file" id="importInput" accept="application/json">
+    </div>
+  </section>
+
+  <footer>
+    Exporta um .json com as camadas (imagens embutidas) e as poses.<br>
+    Esse arquivo é o que entra no jogo via o player leve (rig_player.js).
+  </footer>
+</div>
+
+<script>
+(function () {
+  'use strict';
+
+  // ─────────────────────────────────────────────────────────────
+  //  ESTADO
+  // ─────────────────────────────────────────────────────────────
+  const STAGE_SIZE = 320; // espaço lógico de desenho (px) — independente do zoom da tela
+  const canvas = document.getElementById('stage');
+  const ctx = canvas.getContext('2d');
+
+  let layers = [];      // { id, name, img, src, natW, natH, x, y, rot, scale, pivU, pivV, visible, z, parentId }
+  let poses = {};        // { poseName: { layerId: {x,y,rot,scale}, ... } }
+  let selectedId = null;
+  let nextLayerZ = 1;
+  let nextId = 1;
+
+  let previewRAF = null;
+  let previewLoop = false;
+
+  // ─────────────────────────────────────────────────────────────
+  //  CANVAS: resolução real vs. CSS (nitidez em telas de alta densidade)
+  // ─────────────────────────────────────────────────────────────
+  let zoom = 1;
+  const ZOOM_MIN = 0.5, ZOOM_MAX = 3, ZOOM_STEP = 0.25;
+
+  function setupCanvasDPR() {
+    const dpr = window.devicePixelRatio || 1;
+    canvas.width = STAGE_SIZE * dpr * zoom;
+    canvas.height = STAGE_SIZE * dpr * zoom;
+    canvas.style.width = (STAGE_SIZE * zoom) + 'px';
+    canvas.style.height = (STAGE_SIZE * zoom) + 'px';
+    ctx.setTransform(dpr * zoom, 0, 0, dpr * zoom, 0, 0);
+  }
+  setupCanvasDPR();
+
+  function updateZoomLabel() {
+    document.getElementById('zoomLabel').textContent = Math.round(zoom * 100) + '%';
+  }
+  function setZoom(z) {
+    zoom = Math.min(ZOOM_MAX, Math.max(ZOOM_MIN, Math.round(z * 100) / 100));
+    setupCanvasDPR();
+    updateZoomLabel();
+    draw();
+  }
+  document.getElementById('btnZoomIn').addEventListener('click', () => setZoom(zoom + ZOOM_STEP));
+  document.getElementById('btnZoomOut').addEventListener('click', () => setZoom(zoom - ZOOM_STEP));
+  document.getElementById('zoomLabel').addEventListener('click', () => setZoom(1));
+
+  // Converte coordenadas de ponteiro (cliente) pro espaço lógico do stage (0..STAGE_SIZE)
+  function pointerToStage(evt) {
+    const rect = canvas.getBoundingClientRect();
+    const sx = STAGE_SIZE / rect.width;
+    const sy = STAGE_SIZE / rect.height;
+    return {
+      x: (evt.clientX - rect.left) * sx,
+      y: (evt.clientY - rect.top) * sy,
+    };
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  HIERARQUIA (pai/filho — "bones" simplificados)
+  // ─────────────────────────────────────────────────────────────
+  function getLayerById(id) { return layers.find(l => l.id === id); }
+
+  // Matriz-mundo de uma camada: compõe sua transformação local com a do pai,
+  // recursivamente. Guarda contra ciclos (camada sendo ancestral de si mesma).
+  function worldMatrix(layer, visited) {
+    visited = visited || new Set();
+    const local = new DOMMatrix()
+      .translate(layer.x, layer.y)
+      .rotate(layer.rot)
+      .scale(layer.scale, layer.scale);
+    if (layer.parentId && !visited.has(layer.id)) {
+      const parent = getLayerById(layer.parentId);
+      if (parent) {
+        visited.add(layer.id);
+        return worldMatrix(parent, visited).multiply(local);
+      }
+    }
+    return local;
+  }
+
+  // Posição da camada no espaço do mundo (stage) — é sempre (m.e, m.f) da
+  // matriz composta, já que a translação local é aplicada primeiro (o pivô
+  // da camada mapeia exatamente pra x,y no espaço do pai).
+  function getWorldPos(layer) {
+    const m = worldMatrix(layer);
+    return { x: m.e, y: m.f };
+  }
+
+  // Converte uma posição desejada no espaço do mundo pra x,y local da camada
+  // (o inverso do que getWorldPos faz) — usado pelo snap pra "puxar" a camada
+  // pro alvo alinhado, respeitando a cadeia de pai que ela tiver.
+  function worldToLocal(layer, worldX, worldY) {
+    if (!layer.parentId) return { x: worldX, y: worldY };
+    const parent = getLayerById(layer.parentId);
+    if (!parent) return { x: worldX, y: worldY };
+    const inv = worldMatrix(parent).inverse();
+    const p = inv.transformPoint(new DOMPoint(worldX, worldY));
+    return { x: p.x, y: p.y };
+  }
+
+  // IDs de todos os descendentes de uma camada — usado pra impedir ciclos
+  // ao escolher um pai (uma camada não pode virar filha de um filho dela).
+  function getDescendantIds(layerId) {
+    const out = new Set();
+    let changed = true;
+    while (changed) {
+      changed = false;
+      layers.forEach(l => {
+        if (l.parentId && (l.parentId === layerId || out.has(l.parentId)) && !out.has(l.id)) {
+          out.add(l.id);
+          changed = true;
+        }
+      });
+    }
+    return out;
+  }
+
+  // Converte um delta de movimento em espaço do stage (mundo) pro espaço local
+  // do pai da camada — pra que arrastar na tela mova corretamente mesmo dentro
+  // de uma cadeia rotacionada/escalada.
+  function worldDeltaToLocal(layer, dxWorld, dyWorld) {
+    if (!layer.parentId) return { dx: dxWorld, dy: dyWorld };
+    const parent = getLayerById(layer.parentId);
+    if (!parent) return { dx: dxWorld, dy: dyWorld };
+    const inv = worldMatrix(parent).inverse();
+    const p1 = inv.transformPoint(new DOMPoint(dxWorld, dyWorld));
+    const p0 = inv.transformPoint(new DOMPoint(0, 0));
+    return { dx: p1.x - p0.x, dy: p1.y - p0.y };
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  DESENHO
+  // ─────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
+  //  GRADE / RÉGUA + GUIAS DE ENCAIXE (SNAP)
+  // ─────────────────────────────────────────────────────────────
+  let gridEnabled = false;
+  const GRID_STEP = 20;   // linhas finas da grade (espaço lógico do stage)
+  const GRID_MAJOR = 80;  // linhas/números fortes (régua)
+  const SNAP_THRESHOLD = 5; // px de tolerância (espaço do stage) pra considerar "alinhado"
+  let activeSnapLines = null; // { x, y } — linhas de guia ativas durante o arraste
+  let lastSnapKey = null;     // evita vibrar repetidamente enquanto já está encaixado
+
+  function drawGrid() {
+    if (!gridEnabled) return;
+    ctx.save();
+    ctx.lineWidth = 1;
+    for (let x = 0; x <= STAGE_SIZE; x += GRID_STEP) {
+      const major = x % GRID_MAJOR === 0;
+      ctx.strokeStyle = major ? 'rgba(216,171,74,0.35)' : 'rgba(216,171,74,0.12)';
+      ctx.beginPath();
+      ctx.moveTo(x + 0.5, 0);
+      ctx.lineTo(x + 0.5, STAGE_SIZE);
+      ctx.stroke();
+    }
+    for (let y = 0; y <= STAGE_SIZE; y += GRID_STEP) {
+      const major = y % GRID_MAJOR === 0;
+      ctx.strokeStyle = major ? 'rgba(216,171,74,0.35)' : 'rgba(216,171,74,0.12)';
+      ctx.beginPath();
+      ctx.moveTo(0, y + 0.5);
+      ctx.lineTo(STAGE_SIZE, y + 0.5);
+      ctx.stroke();
+    }
+    // eixo central em destaque, útil pra centralizar peças simétricas
+    ctx.strokeStyle = 'rgba(74,144,168,0.65)';
+    ctx.lineWidth = 1.4;
+    ctx.beginPath();
+    ctx.moveTo(STAGE_SIZE / 2 + 0.5, 0); ctx.lineTo(STAGE_SIZE / 2 + 0.5, STAGE_SIZE);
+    ctx.moveTo(0, STAGE_SIZE / 2 + 0.5); ctx.lineTo(STAGE_SIZE, STAGE_SIZE / 2 + 0.5);
+    ctx.stroke();
+    // números da régua nas bordas
+    ctx.fillStyle = 'rgba(242,232,208,0.55)';
+    ctx.font = '9px sans-serif';
+    ctx.textBaseline = 'top';
+    for (let x = GRID_MAJOR; x < STAGE_SIZE; x += GRID_MAJOR) {
+      ctx.fillText(String(x), x + 2, 1);
+    }
+    ctx.textBaseline = 'alphabetic';
+    for (let y = GRID_MAJOR; y < STAGE_SIZE; y += GRID_MAJOR) {
+      ctx.fillText(String(y), 2, y + 9);
+    }
+    ctx.restore();
+  }
+
+  function drawSnapGuides() {
+    if (!activeSnapLines) return;
+    ctx.save();
+    ctx.strokeStyle = 'rgba(90,210,120,0.9)';
+    ctx.lineWidth = 1.2;
+    ctx.setLineDash([4, 3]);
+    if (activeSnapLines.x !== null) {
+      ctx.beginPath();
+      ctx.moveTo(activeSnapLines.x + 0.5, 0);
+      ctx.lineTo(activeSnapLines.x + 0.5, STAGE_SIZE);
+      ctx.stroke();
+    }
+    if (activeSnapLines.y !== null) {
+      ctx.beginPath();
+      ctx.moveTo(0, activeSnapLines.y + 0.5);
+      ctx.lineTo(STAGE_SIZE, activeSnapLines.y + 0.5);
+      ctx.stroke();
+    }
+    ctx.restore();
+  }
+
+  // Tenta encaixar a camada arrastada no centro do stage, em outras camadas
+  // ou na grade (se ativa). Se encaixar, ajusta l.x/l.y direto e vibra uma
+  // vez só (não repete enquanto o dedo continuar parado no mesmo encaixe).
+  function applySnap(l) {
+    const wp = getWorldPos(l);
+    const targetsX = [STAGE_SIZE / 2];
+    const targetsY = [STAGE_SIZE / 2];
+    layers.forEach(o => {
+      if (o.id === l.id) return;
+      const owp = getWorldPos(o);
+      targetsX.push(owp.x);
+      targetsY.push(owp.y);
+    });
+    if (gridEnabled) {
+      for (let g = 0; g <= STAGE_SIZE; g += GRID_STEP) {
+        targetsX.push(g);
+        targetsY.push(g);
+      }
+    }
+
+    let snappedX = null, snappedY = null;
+    let bestDX = SNAP_THRESHOLD, bestDY = SNAP_THRESHOLD;
+    targetsX.forEach(t => {
+      const d = Math.abs(wp.x - t);
+      if (d < bestDX) { bestDX = d; snappedX = t; }
+    });
+    targetsY.forEach(t => {
+      const d = Math.abs(wp.y - t);
+      if (d < bestDY) { bestDY = d; snappedY = t; }
+    });
+
+    if (snappedX !== null || snappedY !== null) {
+      const local = worldToLocal(l, snappedX !== null ? snappedX : wp.x, snappedY !== null ? snappedY : wp.y);
+      l.x = local.x;
+      l.y = local.y;
+    }
+
+    activeSnapLines = (snappedX !== null || snappedY !== null) ? { x: snappedX, y: snappedY } : null;
+
+    const snapKey = activeSnapLines ? (snappedX + '_' + snappedY) : null;
+    if (snapKey && snapKey !== lastSnapKey && navigator.vibrate) {
+      navigator.vibrate(15);
+    }
+    lastSnapKey = snapKey;
+  }
+
+  function draw() {
+    ctx.clearRect(0, 0, STAGE_SIZE, STAGE_SIZE);
+    drawGrid();
+
+    const sorted = layers.slice().sort((a, b) => a.z - b.z);
+    sorted.forEach(l => {
+      if (!l.visible || !l.img || !l.img.complete) return;
+      const dispH = 120; // altura de exibição de referência — mantém as camadas em escala comparável entre si
+      const ratio = l.natW / l.natH;
+      const dispW = dispH * ratio;
+      const m = worldMatrix(l);
+
+      ctx.save();
+      ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
+      ctx.drawImage(l.img, -dispW * l.pivU, -dispH * l.pivV, dispW, dispH);
+      ctx.restore();
+
+      if (l.id === selectedId) {
+        // marcador da origem (pivô/bone) da camada selecionada, pra facilitar o ajuste
+        ctx.save();
+        ctx.transform(m.a, m.b, m.c, m.d, m.e, m.f);
+        ctx.beginPath();
+        ctx.arc(0, 0, 5, 0, Math.PI * 2);
+        ctx.strokeStyle = '#d8ab4a';
+        ctx.lineWidth = 1.5;
+        ctx.stroke();
+        ctx.beginPath();
+        ctx.moveTo(-8, 0); ctx.lineTo(8, 0);
+        ctx.moveTo(0, -8); ctx.lineTo(0, 8);
+        ctx.stroke();
+        ctx.restore();
+      }
+    });
+
+    drawSnapGuides();
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  CAMADAS
+  // ─────────────────────────────────────────────────────────────
+  // ─────────────────────────────────────────────────────────────
+  //  REMOÇÃO AUTOMÁTICA DE FUNDO — ao importar, se a imagem ainda
+  //  tiver uma borda sólida (branca ou de qualquer outra cor) em vez
+  //  de transparência de verdade, detecta a cor pelos 4 cantos e faz
+  //  um flood-fill a partir da borda, deixando só o que está
+  //  CONECTADO à borda transparente — não mexe em cores parecidas
+  //  que estejam presas dentro do personagem (ex: roupa clara).
+  // ─────────────────────────────────────────────────────────────
+  function removerFundoPorFloodFill(ctx, w, h, tolerancia) {
+    const imgData = ctx.getImageData(0, 0, w, h);
+    const data = imgData.data;
+
+    const cantoIdx = [
+      0,
+      (w - 1) * 4,
+      (h - 1) * w * 4,
+      ((h - 1) * w + (w - 1)) * 4,
+    ];
+    const jaTransparente = cantoIdx.every(i => data[i + 3] < 10);
+    if (jaTransparente) return false; // já é PNG transparente de verdade, não mexe
+
+    let sr = 0, sg = 0, sb = 0;
+    cantoIdx.forEach(i => { sr += data[i]; sg += data[i + 1]; sb += data[i + 2]; });
+    const fr = sr / 4, fg = sg / 4, fb = sb / 4;
+    const tol2 = tolerancia * tolerancia;
+
+    const visitado = new Uint8Array(w * h);
+    const fila = [];
+    for (let x = 0; x < w; x++) { fila.push(x); fila.push((h - 1) * w + x); }
+    for (let y = 0; y < h; y++) { fila.push(y * w); fila.push(y * w + (w - 1)); }
+
+    let removeuAlgo = false;
+    while (fila.length) {
+      const p = fila.pop();
+      if (visitado[p]) continue;
+      visitado[p] = 1;
+      const i = p * 4;
+      if (data[i + 3] === 0) continue;
+      const dr = data[i] - fr, dg = data[i + 1] - fg, db = data[i + 2] - fb;
+      if (dr * dr + dg * dg + db * db > tol2) continue;
+      data[i + 3] = 0;
+      removeuAlgo = true;
+      const x = p % w, y = (p / w) | 0;
+      if (x > 0) fila.push(p - 1);
+      if (x < w - 1) fila.push(p + 1);
+      if (y > 0) fila.push(p - w);
+      if (y < h - 1) fila.push(p + w);
+    }
+
+    if (removeuAlgo) ctx.putImageData(imgData, 0, 0);
+    return removeuAlgo;
+  }
+
+  // Guarda só o canal alfa da imagem (natW x natH), pra depois testar com
+  // precisão se um toque no canvas caiu numa parte visível da camada (e não
+  // num pedaço transparente do retângulo dela) — usado pelo toque-pra-selecionar.
+  function buildHitAlpha(layer) {
+    const off = document.createElement('canvas');
+    off.width = layer.natW;
+    off.height = layer.natH;
+    const octx = off.getContext('2d');
+    octx.drawImage(layer.img, 0, 0);
+    const data = octx.getImageData(0, 0, layer.natW, layer.natH).data;
+    const alpha = new Uint8ClampedArray(layer.natW * layer.natH);
+    for (let i = 0, p = 0; i < data.length; i += 4, p++) alpha[p] = data[i + 3];
+    layer.hitAlpha = alpha;
+  }
+
+  function addLayerFromDataURL(name, dataURL) {
+    const img = new Image();
+    const layer = {
+      id: 'l' + (nextId++),
+      name: name.replace(/\.[a-z0-9]+$/i, ''),
+      img, src: dataURL,
+      natW: 1, natH: 1,
+      x: STAGE_SIZE / 2, y: STAGE_SIZE / 2,
+      rot: 0, scale: 1,
+      pivU: 0.5, pivV: 0.5,
+      visible: true,
+      z: nextLayerZ++,
+      parentId: null,
+      hitAlpha: null,
+    };
+    img.onload = () => {
+      layer.natW = img.naturalWidth;
+      layer.natH = img.naturalHeight;
+
+      const off = document.createElement('canvas');
+      off.width = img.naturalWidth;
+      off.height = img.naturalHeight;
+      const octx = off.getContext('2d');
+      octx.drawImage(img, 0, 0);
+      const mudou = removerFundoPorFloodFill(octx, off.width, off.height, 40);
+      if (mudou) {
+        const novoSrc = off.toDataURL('image/png');
+        layer.src = novoSrc;
+        img.src = novoSrc; // re-dispara onload; na 2ª passada os cantos já tão transparentes e ele não mexe mais
+        renderLayerList(); // atualiza a miniatura pra já mostrar sem a borda
+        return;
+      }
+      buildHitAlpha(layer);
+      draw();
+    };
+    img.src = dataURL;
+    layers.push(layer);
+    selectedId = layer.id;
+    renderLayerList();
+    renderTransformPanel();
+    draw();
+  }
+
+  function removeLayer(id) {
+    layers = layers.filter(l => l.id !== id);
+    // Camadas que eram filhas da removida viram raiz, pra não sobrar referência quebrada.
+    layers.forEach(l => { if (l.parentId === id) l.parentId = null; });
+    if (selectedId === id) selectedId = layers.length ? layers[layers.length - 1].id : null;
+    renderLayerList();
+    renderTransformPanel();
+    draw();
+  }
+
+  function moveLayerZ(id, dir) {
+    const l = layers.find(x => x.id === id);
+    if (!l) return;
+    l.z += dir * 1.5; // mantém ordem relativa sem precisar reindexar tudo
+    renderLayerList();
+    draw();
+  }
+
+  function renderLayerList() {
+    const host = document.getElementById('layerList');
+    host.innerHTML = '';
+    if (!layers.length) {
+      host.innerHTML = '<div class="empty-msg">Nenhuma camada ainda — adicione as partes do personagem (torso, braço, arco, capa...).</div>';
+      return;
+    }
+    layers.slice().sort((a, b) => b.z - a.z).forEach(l => {
+      const row = document.createElement('div');
+      row.className = 'layer-row' + (l.id === selectedId ? ' sel' : '');
+      const parent = l.parentId ? getLayerById(l.parentId) : null;
+      row.innerHTML = `
+        <img class="thumb" src="${l.src}" alt="">
+        <input class="name" value="${l.name}" data-id="${l.id}">
+        ${parent ? `<span style="font-size:0.62rem;color:var(--gold-dim);white-space:nowrap;">→ ${parent.name}</span>` : ''}
+        <button class="icon-btn" data-act="up" data-id="${l.id}" title="Trazer pra frente">⬆</button>
+        <button class="icon-btn" data-act="down" data-id="${l.id}" title="Mandar pra trás">⬇</button>
+        <button class="icon-btn" data-act="vis" data-id="${l.id}" title="Mostrar/ocultar">${l.visible ? '👁' : '🚫'}</button>
+        <button class="icon-btn" data-act="del" data-id="${l.id}" title="Excluir">🗑</button>
+      `;
+      row.addEventListener('click', (e) => {
+        if (e.target.tagName === 'INPUT' || e.target.dataset.act) return;
+        selectedId = l.id;
+        renderLayerList();
+        renderTransformPanel();
+        draw();
+      });
+      host.appendChild(row);
+    });
+
+    host.querySelectorAll('input.name').forEach(inp => {
+      inp.addEventListener('input', () => {
+        const l = layers.find(x => x.id === inp.dataset.id);
+        if (l) l.name = inp.value;
+      });
+    });
+    host.querySelectorAll('button[data-act]').forEach(btn => {
+      btn.addEventListener('click', (e) => {
+        e.stopPropagation();
+        const id = btn.dataset.id;
+        const act = btn.dataset.act;
+        if (act === 'del') removeLayer(id);
+        else if (act === 'up') moveLayerZ(id, 1);
+        else if (act === 'down') moveLayerZ(id, -1);
+        else if (act === 'vis') {
+          const l = layers.find(x => x.id === id);
+          if (l) { l.visible = !l.visible; renderLayerList(); draw(); }
+        }
+      });
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  PAINEL DE TRANSFORMAÇÃO
+  // ─────────────────────────────────────────────────────────────
+  const transformSection = document.getElementById('transformSection');
+  const selParent = document.getElementById('selParent');
+  const rangeRot = document.getElementById('rangeRot');
+  const rangeScale = document.getElementById('rangeScale');
+  const rangePivU = document.getElementById('rangePivU');
+  const rangePivV = document.getElementById('rangePivV');
+  const valRot = document.getElementById('valRot');
+  const valScale = document.getElementById('valScale');
+  const valPivU = document.getElementById('valPivU');
+  const valPivV = document.getElementById('valPivV');
+
+  function renderTransformPanel() {
+    const l = layers.find(x => x.id === selectedId);
+    if (!l) { transformSection.style.display = 'none'; return; }
+    transformSection.style.display = '';
+
+    // Popula o seletor de pai: não pode ser a própria camada nem uma descendente dela (evita ciclo).
+    const blocked = getDescendantIds(l.id);
+    blocked.add(l.id);
+    const options = ['<option value="">— nenhum (raiz) —</option>'];
+    layers.slice().sort((a, b) => a.name.localeCompare(b.name)).forEach(other => {
+      if (blocked.has(other.id)) return;
+      options.push(`<option value="${other.id}"${other.id === l.parentId ? ' selected' : ''}>${other.name}</option>`);
+    });
+    selParent.innerHTML = options.join('');
+    if (!l.parentId) selParent.value = '';
+
+    rangeRot.value = l.rot;
+    rangeScale.value = Math.round(l.scale * 100);
+    rangePivU.value = Math.round(l.pivU * 100);
+    rangePivV.value = Math.round(l.pivV * 100);
+    valRot.textContent = Math.round(l.rot) + '°';
+    valScale.textContent = l.scale.toFixed(2) + '×';
+    valPivU.textContent = Math.round(l.pivU * 100) + '%';
+    valPivV.textContent = Math.round(l.pivV * 100) + '%';
+    updateSizeLabel(l);
+  }
+
+  // Tamanho que a camada ocupa na cena (em px do stage, 320×320 lógico —
+  // não muda com o zoom da tela), pra comparar entre camadas e igualar
+  // escalas na mão em vez de confiar só na grade/régua. Os campos são
+  // editáveis: digitar largura ou altura recalcula a escala da camada.
+  const inpSizeW = document.getElementById('inpSizeW');
+  const inpSizeH = document.getElementById('inpSizeH');
+
+  function dispSizeOf(l) {
+    const dispH = 120;
+    const dispW = dispH * (l.natW / l.natH);
+    return { dispW, dispH };
+  }
+
+  function updateSizeLabel(l) {
+    if (!l || !l.natW || !l.natH) {
+      inpSizeW.value = '';
+      inpSizeH.value = '';
+      inpSizeW.disabled = true;
+      inpSizeH.disabled = true;
+      return;
+    }
+    inpSizeW.disabled = false;
+    inpSizeH.disabled = false;
+    const { dispW, dispH } = dispSizeOf(l);
+    // Não pisa no que a pessoa está digitando agora.
+    if (document.activeElement !== inpSizeW) inpSizeW.value = Math.round(dispW * l.scale);
+    if (document.activeElement !== inpSizeH) inpSizeH.value = Math.round(dispH * l.scale);
+  }
+
+  function applyScaleFromSize(dimension) {
+    const l = layers.find(x => x.id === selectedId);
+    if (!l || !l.natW || !l.natH) return;
+    const { dispW, dispH } = dispSizeOf(l);
+    const raw = Number(dimension === 'w' ? inpSizeW.value : inpSizeH.value);
+    if (!raw || raw <= 0) { updateSizeLabel(l); return; }
+    const newScale = dimension === 'w' ? raw / dispW : raw / dispH;
+    l.scale = Math.min(6, Math.max(0.05, newScale));
+    renderTransformPanel();
+    draw();
+  }
+
+  inpSizeW.addEventListener('change', () => applyScaleFromSize('w'));
+  inpSizeH.addEventListener('change', () => applyScaleFromSize('h'));
+  [inpSizeW, inpSizeH].forEach(el => {
+    el.addEventListener('keydown', (e) => { if (e.key === 'Enter') el.blur(); });
+  });
+
+  selParent.addEventListener('change', () => {
+    const l = layers.find(x => x.id === selectedId);
+    if (!l) return;
+    l.parentId = selParent.value || null;
+    draw();
+  });
+
+  [
+    [rangeRot, 'rot', v => v, valRot, v => Math.round(v) + '°'],
+    [rangeScale, 'scale', v => v / 100, valScale, v => (v / 100).toFixed(2) + '×'],
+    [rangePivU, 'pivU', v => v / 100, valPivU, v => Math.round(v) + '%'],
+    [rangePivV, 'pivV', v => v / 100, valPivV, v => Math.round(v) + '%'],
+  ].forEach(([el, prop, conv, labelEl, fmt]) => {
+    el.addEventListener('input', () => {
+      const l = layers.find(x => x.id === selectedId);
+      if (!l) return;
+      l[prop] = conv(Number(el.value));
+      labelEl.textContent = fmt(Number(el.value));
+      if (prop === 'scale') updateSizeLabel(l);
+      draw();
+    });
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  //  TOQUE-PRA-SELECIONAR: descobre qual camada está sob um ponto
+  //  do stage (em coordenadas de mundo), da mais pra frente (z maior)
+  //  pra trás, testando o pixel real (alfa) e não só o retângulo —
+  //  assim tocar num espaço vazio entre duas camadas sobrepostas não
+  //  seleciona a errada.
+  // ─────────────────────────────────────────────────────────────
+  function pontoNaCamada(l, stageX, stageY) {
+    if (!l.visible || !l.img || !l.img.complete) return false;
+    const dispH = 120;
+    const ratio = l.natW / l.natH;
+    const dispW = dispH * ratio;
+    const inv = worldMatrix(l).inverse();
+    const p = inv.transformPoint(new DOMPoint(stageX, stageY));
+    const ox = -dispW * l.pivU, oy = -dispH * l.pivV;
+    if (p.x < ox || p.x > ox + dispW || p.y < oy || p.y > oy + dispH) return false;
+    if (!l.hitAlpha) return true; // ainda sem dados de alfa (carregando) — usa só o retângulo
+    const ix = Math.floor((p.x - ox) / dispW * l.natW);
+    const iy = Math.floor((p.y - oy) / dispH * l.natH);
+    if (ix < 0 || ix >= l.natW || iy < 0 || iy >= l.natH) return false;
+    return l.hitAlpha[iy * l.natW + ix] > 10;
+  }
+
+  function encontrarCamadaEm(stageX, stageY) {
+    const porZDesc = layers.slice().sort((a, b) => b.z - a.z);
+    for (const l of porZDesc) {
+      if (pontoNaCamada(l, stageX, stageY)) return l;
+    }
+    return null;
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  ARRASTAR CAMADA SELECIONADA NO CANVAS (1 dedo) e PINÇA pra
+  //  aumentar/diminuir (2 dedos) — sem precisar descer até o
+  //  slider de escala mais embaixo.
+  // ─────────────────────────────────────────────────────────────
+  let dragging = false;
+  let dragStart = null;
+  let dragLayerStart = null;
+
+  const activePointers = new Map(); // pointerId -> {x, y} em coordenadas de tela
+  let pinchStartDist = null;
+  let pinchStartScale = null;
+
+  function distanciaEntrePonteiros() {
+    const pts = Array.from(activePointers.values());
+    if (pts.length < 2) return null;
+    return Math.hypot(pts[0].x - pts[1].x, pts[0].y - pts[1].y);
+  }
+
+  canvas.addEventListener('pointerdown', (e) => {
+    activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+    canvas.setPointerCapture(e.pointerId);
+
+    if (activePointers.size === 1) {
+      // Primeiro dedo: se tocou em cima de outra camada, troca a seleção
+      // pra ela na hora — sem precisar descer até a lista de camadas.
+      // Se não acertou nenhuma, mantém a seleção atual (permite continuar
+      // arrastando a camada já selecionada mesmo tocando um pouco ao lado).
+      const stagePt = pointerToStage(e);
+      const alvo = encontrarCamadaEm(stagePt.x, stagePt.y);
+      if (alvo && alvo.id !== selectedId) {
+        selectedId = alvo.id;
+        renderLayerList();
+        renderTransformPanel();
+      }
+    }
+
+    const l = layers.find(x => x.id === selectedId);
+    if (!l) return;
+
+    if (activePointers.size >= 2) {
+      // 2º dedo tocou — começa gesto de pinça, cancela um arrasto em andamento.
+      dragging = false;
+      pinchStartDist = distanciaEntrePonteiros();
+      pinchStartScale = l.scale;
+      activeSnapLines = null;
+      lastSnapKey = null;
+      return;
+    }
+
+    dragging = true;
+    dragStart = pointerToStage(e);
+    dragLayerStart = { x: l.x, y: l.y };
+    activeSnapLines = null;
+    lastSnapKey = null;
+  });
+  canvas.addEventListener('pointermove', (e) => {
+    if (!activePointers.has(e.pointerId)) return;
+    activePointers.set(e.pointerId, { x: e.clientX, y: e.clientY });
+
+    const l = layers.find(x => x.id === selectedId);
+    if (!l) return;
+
+    if (activePointers.size >= 2 && pinchStartDist) {
+      const dist = distanciaEntrePonteiros();
+      if (dist) {
+        const novaEscala = pinchStartScale * (dist / pinchStartDist);
+        l.scale = Math.min(6, Math.max(0.05, novaEscala));
+        renderTransformPanel(); // sincroniza o slider "Escala" lá embaixo com o valor da pinça
+        draw();
+      }
+      return;
+    }
+
+    if (!dragging) return;
+    const p = pointerToStage(e);
+    const worldDx = p.x - dragStart.x;
+    const worldDy = p.y - dragStart.y;
+    const { dx, dy } = worldDeltaToLocal(l, worldDx, worldDy);
+    l.x = dragLayerStart.x + dx;
+    l.y = dragLayerStart.y + dy;
+    applySnap(l);
+    draw();
+  });
+  ['pointerup', 'pointercancel'].forEach(evt => {
+    canvas.addEventListener(evt, (e) => {
+      activePointers.delete(e.pointerId);
+      if (activePointers.size < 2) { pinchStartDist = null; pinchStartScale = null; }
+      dragging = false;
+      activeSnapLines = null;
+      lastSnapKey = null;
+      draw();
+    });
+  });
+
+  document.getElementById('chkGrid').addEventListener('change', (e) => {
+    gridEnabled = e.target.checked;
+    draw();
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  //  IMPORTAR IMAGENS
+  // ─────────────────────────────────────────────────────────────
+  document.getElementById('btnAddLayer').addEventListener('click', () => {
+    document.getElementById('fileInput').click();
+  });
+  document.getElementById('fileInput').addEventListener('change', (e) => {
+    const files = Array.from(e.target.files || []);
+    files.forEach(file => {
+      const reader = new FileReader();
+      reader.onload = () => addLayerFromDataURL(file.name, reader.result);
+      reader.readAsDataURL(file);
+    });
+    e.target.value = '';
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  //  POSES
+  // ─────────────────────────────────────────────────────────────
+  const poseNamePreset = document.getElementById('poseNamePreset');
+  const poseNameCustom = document.getElementById('poseNameCustom');
+  poseNamePreset.addEventListener('change', () => {
+    poseNameCustom.style.display = poseNamePreset.value === '__custom' ? '' : 'none';
+  });
+
+  function currentPoseName() {
+    return poseNamePreset.value === '__custom'
+      ? (poseNameCustom.value || '').trim()
+      : poseNamePreset.value;
+  }
+
+  document.getElementById('btnSavePose').addEventListener('click', () => {
+    const name = currentPoseName();
+    if (!name) { alert('Dá um nome pra pose primeiro.'); return; }
+    if (!layers.length) { alert('Adiciona pelo menos uma camada antes de salvar uma pose.'); return; }
+    const snapshot = {};
+    layers.forEach(l => {
+      snapshot[l.id] = { x: l.x, y: l.y, rot: l.rot, scale: l.scale };
+    });
+    poses[name] = snapshot;
+    renderPoseList();
+    renderPreviewSelects();
+  });
+
+  function applyPose(name, layersSnapshot) {
+    const snap = layersSnapshot || poses[name];
+    if (!snap) return;
+    layers.forEach(l => {
+      const t = snap[l.id];
+      if (t) { l.x = t.x; l.y = t.y; l.rot = t.rot; l.scale = t.scale; }
+    });
+    renderTransformPanel();
+    draw();
+  }
+
+  function renderPoseList() {
+    const host = document.getElementById('poseList');
+    const names = Object.keys(poses);
+    document.getElementById('poseEmptyMsg').style.display = names.length ? 'none' : '';
+    host.innerHTML = '';
+    names.forEach(name => {
+      const chip = document.createElement('span');
+      chip.className = 'pose-chip';
+      chip.innerHTML = `<span data-load="${name}" style="cursor:pointer;">${name}</span> <button data-del="${name}">✕</button>`;
+      host.appendChild(chip);
+    });
+    host.querySelectorAll('[data-load]').forEach(el => {
+      el.addEventListener('click', () => applyPose(el.dataset.load));
+    });
+    host.querySelectorAll('[data-del]').forEach(el => {
+      el.addEventListener('click', () => {
+        delete poses[el.dataset.del];
+        renderPoseList();
+        renderPreviewSelects();
+      });
+    });
+  }
+
+  function renderPreviewSelects() {
+    const names = Object.keys(poses);
+    [document.getElementById('prevFrom'), document.getElementById('prevTo')].forEach(sel => {
+      const cur = sel.value;
+      sel.innerHTML = names.map(n => `<option value="${n}">${n}</option>`).join('');
+      if (names.includes(cur)) sel.value = cur;
+    });
+  }
+
+  // ─────────────────────────────────────────────────────────────
+  //  PRÉVIA (tween entre duas poses)
+  // ─────────────────────────────────────────────────────────────
+  function easeOutCubic(t) { return 1 - Math.pow(1 - t, 3); }
+
+  function tweenOnce(fromName, toName, durMs, onDone) {
+    const from = poses[fromName], to = poses[toName];
+    if (!from || !to) return;
+    const start = performance.now();
+    function step(now) {
+      const t = Math.min(1, (now - start) / durMs);
+      const e = easeOutCubic(t);
+      layers.forEach(l => {
+        const a = from[l.id], b = to[l.id];
+        if (!a || !b) return;
+        l.x = a.x + (b.x - a.x) * e;
+        l.y = a.y + (b.y - a.y) * e;
+        l.rot = a.rot + (b.rot - a.rot) * e;
+        l.scale = a.scale + (b.scale - a.scale) * e;
+      });
+      draw();
+      if (t < 1) {
+        previewRAF = requestAnimationFrame(step);
+      } else if (onDone) {
+        onDone();
+      }
+    }
+    previewRAF = requestAnimationFrame(step);
+  }
+
+  function stopPreview() {
+    previewLoop = false;
+    if (previewRAF) cancelAnimationFrame(previewRAF);
+    previewRAF = null;
+    document.getElementById('btnStopPreview').disabled = true;
+  }
+
+  function runPreview(loop) {
+    const from = document.getElementById('prevFrom').value;
+    const to = document.getElementById('prevTo').value;
+    const dur = Number(document.getElementById('prevDur').value) || 220;
+    if (!from || !to) { alert('Salva pelo menos 2 poses antes de testar a prévia.'); return; }
+    stopPreview();
+    previewLoop = loop;
+    document.getElementById('btnStopPreview').disabled = false;
+    function cycle() {
+      tweenOnce(from, to, dur, () => {
+        if (!previewLoop) { document.getElementById('btnStopPreview').disabled = true; return; }
+        tweenOnce(to, from, dur, () => { if (previewLoop) cycle(); });
+      });
+    }
+    cycle();
+  }
+
+  document.getElementById('btnPreview').addEventListener('click', () => runPreview(false));
+  document.getElementById('btnPreviewLoop').addEventListener('click', () => runPreview(true));
+  document.getElementById('btnStopPreview').addEventListener('click', stopPreview);
+
+  // ─────────────────────────────────────────────────────────────
+  //  EXPORTAR / IMPORTAR PROJETO
+  // ─────────────────────────────────────────────────────────────
+  document.getElementById('btnExport').addEventListener('click', () => {
+    if (!layers.length) { alert('Adiciona camadas antes de exportar.'); return; }
+    const project = {
+      version: 1,
+      character: (document.getElementById('charName').value || 'personagem').trim(),
+      stageSize: STAGE_SIZE,
+      refHeight: 120,
+      layers: layers.map(l => ({
+        id: l.id, name: l.name, z: l.z,
+        pivU: l.pivU, pivV: l.pivV,
+        parentId: l.parentId || null,
+        src: l.src,
+      })),
+      poses: poses,
+    };
+    const blob = new Blob([JSON.stringify(project)], { type: 'application/json' });
+    const url = URL.createObjectURL(blob);
+    const a = document.createElement('a');
+    a.href = url;
+    a.download = (project.character || 'rig') + '.json';
+    document.body.appendChild(a);
+    a.click();
+    a.remove();
+    setTimeout(() => URL.revokeObjectURL(url), 2000);
+  });
+
+  // Exporta o quadro atual do stage (a pose que está sendo editada/visualizada
+  // agora) como imagem raster. Esconde o marcador de pivô da camada selecionada
+  // durante a captura, pra não sujar a imagem exportada.
+  function exportStageAsImage(mime, ext, bgColor) {
+    if (!layers.length) { alert('Adiciona camadas antes de exportar.'); return; }
+    const prevSelected = selectedId;
+    const prevGrid = gridEnabled;
+    const prevSnapLines = activeSnapLines;
+    selectedId = null;
+    gridEnabled = false;
+    activeSnapLines = null;
+    draw();
+
+    let sourceCanvas = canvas;
+    if (bgColor) {
+      // JPEG não tem canal alfa — compõe sobre um fundo sólido antes de exportar.
+      const tmp = document.createElement('canvas');
+      tmp.width = canvas.width;
+      tmp.height = canvas.height;
+      const tctx = tmp.getContext('2d');
+      tctx.fillStyle = bgColor;
+      tctx.fillRect(0, 0, tmp.width, tmp.height);
+      tctx.drawImage(canvas, 0, 0);
+      sourceCanvas = tmp;
+    }
+
+    sourceCanvas.toBlob((blob) => {
+      selectedId = prevSelected;
+      gridEnabled = prevGrid;
+      activeSnapLines = prevSnapLines;
+      draw();
+      if (!blob) { alert('Não consegui gerar a imagem.'); return; }
+      const url = URL.createObjectURL(blob);
+      const a = document.createElement('a');
+      a.href = url;
+      const charName = (document.getElementById('charName').value || 'rig').trim();
+      a.download = charName + '.' + ext;
+      document.body.appendChild(a);
+      a.click();
+      a.remove();
+      setTimeout(() => URL.revokeObjectURL(url), 2000);
+    }, mime, mime === 'image/jpeg' ? 0.92 : undefined);
+  }
+
+  document.getElementById('btnExportPNG').addEventListener('click', () => {
+    exportStageAsImage('image/png', 'png', null);
+  });
+  document.getElementById('btnExportJPEG').addEventListener('click', () => {
+    exportStageAsImage('image/jpeg', 'jpeg', '#1b140e');
+  });
+
+  document.getElementById('btnImport').addEventListener('click', () => {
+    document.getElementById('importInput').click();
+  });
+  document.getElementById('importInput').addEventListener('change', (e) => {
+    const file = e.target.files && e.target.files[0];
+    if (!file) return;
+    const reader = new FileReader();
+    reader.onload = () => {
+      try {
+        const project = JSON.parse(reader.result);
+        loadProject(project);
+      } catch (err) {
+        alert('Não consegui ler esse arquivo — confira se é um .json exportado por essa mesma ferramenta.');
+      }
+    };
+    reader.readAsText(file);
+    e.target.value = '';
+  });
+
+  function loadProject(project) {
+    layers = [];
+    poses = project.poses || {};
+    selectedId = null;
+    nextId = 1;
+    nextLayerZ = 1;
+    document.getElementById('charName').value = project.character || '';
+
+    let pending = (project.layers || []).length;
+    if (!pending) { renderAll(); return; }
+
+    (project.layers || []).forEach(pl => {
+      const img = new Image();
+      const layer = {
+        id: pl.id || ('l' + (nextId++)),
+        name: pl.name || 'camada',
+        img, src: pl.src,
+        natW: 1, natH: 1,
+        x: STAGE_SIZE / 2, y: STAGE_SIZE / 2,
+        rot: 0, scale: 1,
+        pivU: pl.pivU != null ? pl.pivU : 0.5,
+        pivV: pl.pivV != null ? pl.pivV : 0.5,
+        visible: true,
+        z: pl.z != null ? pl.z : nextLayerZ++,
+        parentId: pl.parentId || null,
+      };
+      img.onload = () => {
+        layer.natW = img.naturalWidth;
+        layer.natH = img.naturalHeight;
+        buildHitAlpha(layer);
+        pending--;
+        if (pending <= 0) {
+          // Depois que todas as imagens carregaram, aplica a pose "idle" se existir,
+          // pra já mostrar o personagem montado em vez de tudo empilhado no centro.
+          if (poses.idle) applyPose('idle');
+          renderAll();
+        } else {
+          draw();
+        }
+      };
+      img.src = pl.src;
+      layers.push(layer);
+    });
+    if (layers.length) selectedId = layers[layers.length - 1].id;
+    renderAll();
+  }
+
+  document.getElementById('btnReset').addEventListener('click', () => {
+    if (!confirm('Começar um projeto novo? Isso descarta tudo que não foi baixado.')) return;
+    layers = [];
+    poses = {};
+    selectedId = null;
+    document.getElementById('charName').value = '';
+    renderAll();
+  });
+
+  // ─────────────────────────────────────────────────────────────
+  //  BOOT
+  // ─────────────────────────────────────────────────────────────
+  function renderAll() {
+    renderLayerList();
+    renderTransformPanel();
+    renderPoseList();
+    renderPreviewSelects();
+    draw();
+  }
+  renderAll();
+})();
+</script>
+</body>
+</html>
