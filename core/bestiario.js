@@ -54,7 +54,7 @@ const BESTIARY_DEFS = [
     elem: 'Vento', fraqueza: 'Gelo / Elétrico', hp: 18, loot: 'Pena de Corvo',
     curiosidade: "Os corvos do Castelo Maldito nunca dormem: revezam-se em bandos pra vigiar a floresta dia e noite.",
     desc: 'Corvo mensageiro do Castelo Maldito. Suas penas escuras cortam como lâminas e seus grasnidos desorientam.',
-    icon: '🐦‍⬛', portrait: 'Imagens/personagens/corvo.png',
+    icon: '🐦‍⬛', portrait: 'Imagens/personagens/Corvo.png',
   },
   {
     id: 'cobra', name: 'Serpente das Trevas', zone: 'floresta',
@@ -68,7 +68,7 @@ const BESTIARY_DEFS = [
     elem: 'Sombra', fraqueza: 'Magia Negra / Luz', hp: 30, loot: 'Pele de Lobo',
     curiosidade: "A matilha se comunica por uivos que carregam o eco da névoa — dizem que dá pra senti-los antes mesmo de ouvi-los.",
     desc: 'Lobo corrompido pela névoa do Senhor das Cinzas. Seus olhos brilham com um roxo sinistro e ataca em manadas.',
-    icon: '🐺', portrait: 'Imagens/personagens/lobo.png',
+    icon: '🐺', portrait: 'Imagens/personagens/Lobo.png',
   },
   {
     id: 'raposa', name: 'Raposa das Neblinas', zone: 'floresta',

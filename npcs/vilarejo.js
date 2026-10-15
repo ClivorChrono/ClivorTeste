@@ -1764,7 +1764,7 @@ const GOZEN_CRAFT = [
     desc: 'Restaura 25 AP em batalha.',
     effect: '+25 AP',
     cost: [ { id:'cinza_espectral', name:'Cinza Espectral', icon:'🌫️', qty:2 }, { id:'erva_cura', name:'Erva Medicinal', icon:'🌿', qty:1 } ],
-    result: { id:'pocao_ap_p', name:'Essência de Energia', icon:'⚡', imgSrc:'Imagens/cosméticos/Poção.png', type:'consumível', desc:'Restaura 25 AP.', restoreAP:25 },
+    result: { id:'pocao_ap_p', name:'Essência de Energia', icon:'⚡', imgSrc:'Imagens/cosméticos/poção.png', type:'consumível', desc:'Restaura 25 AP.', restoreAP:25 },
   },
   {
     id: 'pocao_ap_m',
@@ -1773,7 +1773,7 @@ const GOZEN_CRAFT = [
     desc: 'Restaura 50 AP em batalha.',
     effect: '+50 AP',
     cost: [ { id:'cinza_espectral', name:'Cinza Espectral', icon:'🌫️', qty:3 }, { id:'po_cristal', name:'Pó de Cristal', icon:'💎', qty:2 } ],
-    result: { id:'pocao_ap_m', name:'Elixir de Vigor', icon:'⚡', imgSrc:'Imagens/cosméticos/PoçãoM.png', type:'consumível', desc:'Restaura 50 AP.', restoreAP:50 },
+    result: { id:'pocao_ap_m', name:'Elixir de Vigor', icon:'⚡', imgSrc:'Imagens/cosméticos/poçãoM.png', type:'consumível', desc:'Restaura 50 AP.', restoreAP:50 },
   },
   {
     id: 'pocao_ap_g',
@@ -1782,7 +1782,7 @@ const GOZEN_CRAFT = [
     desc: 'Restaura 100 AP. Usa essência fantasmal.',
     effect: '+100 AP',
     cost: [ { id:'essencia_fantasma', name:'Essência Fantasmal', icon:'💠', qty:2 }, { id:'cinza_espectral', name:'Cinza Espectral', icon:'🌫️', qty:4 } ],
-    result: { id:'pocao_ap_g', name:'Essência Ancestral', icon:'⚡', imgSrc:'Imagens/cosméticos/PoçãoG.png', type:'consumível', desc:'Restaura 100 AP.', restoreAP:100 },
+    result: { id:'pocao_ap_g', name:'Essência Ancestral', icon:'⚡', imgSrc:'Imagens/cosméticos/poçãoG.png', type:'consumível', desc:'Restaura 100 AP.', restoreAP:100 },
   },
   {
     id: 'cristal_mana',
@@ -1800,7 +1800,7 @@ const GOZEN_CRAFT = [
     desc: 'Restaura 80 HP. Eco Cristalizado destilado.',
     effect: '+80 HP',
     cost: [ { id:'eco_cristalizado', name:'Eco Cristalizado', icon:'🔮', qty:1 }, { id:'erva_cura', name:'Erva Medicinal', icon:'🌿', qty:3 } ],
-    result: { id:'pocao_vazio_m', name:'Poção do Vazio', icon:'🔮', imgSrc:'Imagens/cosméticos/PoçãoM.png', type:'consumível', desc:'Restaura 80 HP.', heal:80 },
+    result: { id:'pocao_vazio_m', name:'Poção do Vazio', icon:'🔮', imgSrc:'Imagens/cosméticos/poçãoM.png', type:'consumível', desc:'Restaura 80 HP.', heal:80 },
   },
   {
     id: 'elixir_sombra',
@@ -2232,10 +2232,10 @@ window.gozenDoCraft = gozenDoCraft;
 
 const GOZEN_LOJA = [
   { id:'erva_cura',   name:'Erva Medicinal', icon:'🌿', price:5,  result:{ id:'erva_cura',   name:'Erva Medicinal', icon:'🌿', imgSrc:'Imagens/cosméticos/erva.png',   type:'consumível', desc:'Recupera 15 HP.', heal:15 } },
-  { id:'pocao_p',     name:'Poção Pequena',  icon:'🧪', price:12, result:{ id:'pocao_pequena', name:'Poção Pequena', icon:'🧪', imgSrc:'Imagens/cosméticos/Poção.png',   type:'consumível', desc:'Restaura 25 HP.',  heal:25 } },
-  { id:'pocao_m_buy', name:'Poção Média',    icon:'🫙', price:25, result:{ id:'pocao_media',  name:'Poção Média',   icon:'🫙', imgSrc:'Imagens/cosméticos/PoçãoM.png',  type:'consumível', desc:'Restaura 60 HP.',  heal:60 } },
+  { id:'pocao_p',     name:'Poção Pequena',  icon:'🧪', price:12, result:{ id:'pocao_pequena', name:'Poção Pequena', icon:'🧪', imgSrc:'Imagens/cosméticos/poção.png',   type:'consumível', desc:'Restaura 25 HP.',  heal:25 } },
+  { id:'pocao_m_buy', name:'Poção Média',    icon:'🫙', price:25, result:{ id:'pocao_media',  name:'Poção Média',   icon:'🫙', imgSrc:'Imagens/cosméticos/poçãoM.png',  type:'consumível', desc:'Restaura 60 HP.',  heal:60 } },
   { id:'pocao_mp_buy',name:'Poção de MP',    icon:'🔵', price:20, result:{ id:'pocao_mp_p',   name:'Poção de MP',   icon:'🔵', imgSrc:'Imagens/cosméticos/MP.png',      type:'consumível', desc:'Restaura 25 MP.',  restoreMP:25 } },
-  { id:'pocao_ap_buy',name:'Essência de Energia', icon:'⚡', price:20, result:{ id:'pocao_ap_p', name:'Essência de Energia', icon:'⚡', imgSrc:'Imagens/cosméticos/Poção.png', type:'consumível', desc:'Restaura 25 AP.', restoreAP:25 } },
+  { id:'pocao_ap_buy',name:'Essência de Energia', icon:'⚡', price:20, result:{ id:'pocao_ap_p', name:'Essência de Energia', icon:'⚡', imgSrc:'Imagens/cosméticos/poção.png', type:'consumível', desc:'Restaura 25 AP.', restoreAP:25 } },
   { id:'pedra_buy',   name:'Pedra',          icon:'🪨', price:3,  result:{ id:'pedra',       name:'Pedra',         icon:'🪨', imgSrc:'Imagens/pedra.png',              type:'material',   desc:'Material de craft.', weight:0.3 } },
   { id:'frasco_vazio_buy', name:'Frasco Vazio', icon:'🧴', price:4, result:{ id:'frasco_vazio', name:'Frasco Vazio', icon:'🧴', imgSrc:'Imagens/icones/materiais/frascoVazio.png', type:'material', desc:'Frasco de vidro vazio. Pode ser preenchido com veneno na ferraria de Gozen.', weight:0.2 } },
 ];

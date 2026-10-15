@@ -1375,7 +1375,7 @@ function abrirLivroMago() {
     width:min(380px,96vw);
     max-height:88vh;
     overflow-y:auto;
-    background-image:url('Imagens/icones/L8li.png');
+    background-image:url('Imagens/icones/l8li.png');
     background-size:cover;
     background-position:center top;
     border:1px solid rgba(200,150,10,0.5);

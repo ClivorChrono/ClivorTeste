@@ -486,7 +486,7 @@ const INIMIGOS_FLORESTA = [
     id: 'corvo',
     name: 'Corvo das Cinzas',
     icon: '🐦‍⬛',
-    img: 'Imagens/personagens/corvo.png',
+    img: 'Imagens/personagens/Corvo.png',
     elemento: 'vento',
     hp: 18, atk: 9, def: 2,
     xp: 13, gold: 7,
@@ -510,13 +510,13 @@ const INIMIGOS_FLORESTA = [
     xp: 16, gold: 8,
     minLevel: 1, maxLevel: 99, tier: 1,
     desc: 'Cobra colossal que rasteja silenciosa entre as raízes podres. Um único bote pode ser fatal.',
-    loot: [{ id:'pele_cobra', name:'Pele de Cobra', icon:'🐍', imgSrc:'Imagens/icones/materiais/Peledeco.png', chance:0.5, weight:0.2, type:'material', desc:'Escamas finas de uma cobra.' }],
+    loot: [{ id:'pele_cobra', name:'Pele de Cobra', icon:'🐍', imgSrc:'Imagens/icones/materiais/peledeco.png', chance:0.5, weight:0.2, type:'material', desc:'Escamas finas de uma cobra.' }],
   },
   {
     id: 'lobo',
     name: 'Lobo das Sombras',
     icon: '🐺',
-    img: 'Imagens/personagens/lobo.png',
+    img: 'Imagens/personagens/Lobo.png',
     elemento: 'sombra',
     hp: 30, atk: 10, def: 3,
     xp: 18, gold: 9,
@@ -2224,7 +2224,7 @@ function confirmClass() {
   const wpn = cls.startWeapon;
   G.player.inventory = [
     { id:'arma_'+wpn.id, icon:wpn.icon, imgSrc:wpn.imgSrc||null, name:wpn.name, weight:wpn.weight||2, qty:1, desc:wpn.desc, type:'equipamento', equipSlot:'weapon', atk:wpn.atk||0, def:wpn.def||0, mag:wpn.mag||0, spd:wpn.spd||0, equipped:true },
-    { id:'pocao_pequena', icon:'🧪', imgSrc:'Imagens/cosméticos/Poção.png', name:'Poção Pequena', weight:0.5, qty:2, desc:'Restaura 25 HP.', heal:25, type:'consumível' },
+    { id:'pocao_pequena', icon:'🧪', imgSrc:'Imagens/cosméticos/poção.png', name:'Poção Pequena', weight:0.5, qty:2, desc:'Restaura 25 HP.', heal:25, type:'consumível' },
     { id:'erva_cura', icon:'🌿', imgSrc:'Imagens/cosméticos/erva.png', name:'Erva Medicinal', weight:0.2, qty:1, desc:'Recupera 15 HP.', type:'consumível' },
   ];
 
@@ -2936,9 +2936,9 @@ function useInventoryItem(idx) {
 //  ITEM_DB — Fonte canônica de ícones/imagens de todos os itens
 // ─────────────────────────────────────────────────────────────
 const ITEM_DB = {
-  pocao_pequena:  { name:'Poção Pequena',       icon:'🧪',  imgSrc:'Imagens/cosméticos/Poção.png',           type:'consumível', desc:'Restaura 25 HP.',        heal:25,  weight:0.5 },
-  pocao_media:    { name:'Poção Média',          icon:'🫙',  imgSrc:'Imagens/cosméticos/PoçãoM.png',          type:'consumível', desc:'Restaura 60 HP.',        heal:60,  weight:0.5 },
-  pocao_grande:   { name:'Poção Grande',         icon:'⚗️',  imgSrc:'Imagens/cosméticos/PoçãoG.png',          type:'consumível', desc:'Restaura 120 HP.',       heal:120, weight:0.5 },
+  pocao_pequena:  { name:'Poção Pequena',       icon:'🧪',  imgSrc:'Imagens/cosméticos/poção.png',           type:'consumível', desc:'Restaura 25 HP.',        heal:25,  weight:0.5 },
+  pocao_media:    { name:'Poção Média',          icon:'🫙',  imgSrc:'Imagens/cosméticos/poçãoM.png',          type:'consumível', desc:'Restaura 60 HP.',        heal:60,  weight:0.5 },
+  pocao_grande:   { name:'Poção Grande',         icon:'⚗️',  imgSrc:'Imagens/cosméticos/poçãoG.png',          type:'consumível', desc:'Restaura 120 HP.',       heal:120, weight:0.5 },
   pocao_cura:     { name:'Poção de Cura',        icon:'🧪',  imgSrc:'Imagens/pocao.png',                      type:'consumível', desc:'Recupera 40 HP.',        heal:40,  weight:0.5 },
   elixir_ap:      { name:'Elixir de AP',         icon:'⚗️',  imgSrc:'Imagens/elixir.png',                     type:'consumível', desc:'Restaura 50 AP.',        restoreAP:50, weight:0.3 },
   aaur_elixir:    { name:'Elixir de MP',          icon:'💙',  imgSrc:'Imagens/cosméticos/aaur.png',            type:'consumível', desc:'Restaura 50 MP.',        restoreMP:50, weight:0.3 },
@@ -2948,9 +2948,9 @@ const ITEM_DB = {
   po_cristal:     { name:'Pó de Cristal',        icon:'💎',  imgSrc:'Imagens/icones/materiais/poCrista.png',   type:'material',   desc:'Pó mágico de cristal. Usado em craft de poções de MP.', weight:0.2 },
   pocao_mp_p:     { name:'Poção de MP',           icon:'🔵',  imgSrc:'Imagens/cosméticos/MP.png',              type:'consumível', desc:'Restaura 25 MP.',        restoreMP:25, weight:0.4 },
   pocao_mp_m:     { name:'Poção de MP Média',     icon:'🔷',  imgSrc:'Imagens/cosméticos/MP.png',              type:'consumível', desc:'Restaura 45 MP.',        restoreMP:45, weight:0.4 },
-  pocao_mp_g:     { name:'Poção de MP Grande',    icon:'🔷',  imgSrc:'Imagens/cosméticos/PoçãoG.png',          type:'consumível', desc:'Restaura 70 MP.',        restoreMP:70, weight:0.5 },
+  pocao_mp_g:     { name:'Poção de MP Grande',    icon:'🔷',  imgSrc:'Imagens/cosméticos/poçãoG.png',          type:'consumível', desc:'Restaura 70 MP.',        restoreMP:70, weight:0.5 },
   pele_lobo:      { name:'Pele de Lobo',         icon:'🐾',  imgSrc:'Imagens/icones/materiais/pele_lobo.png', type:'material',   desc:'Pele de um lobo selvagem.',        weight:0.5 },
-  pele_cobra:     { name:'Pele de Cobra',        icon:'🐍',  imgSrc:'Imagens/icones/materiais/Peledeco.png',  type:'material',   desc:'Escamas finas de uma cobra.',      weight:0.4 },
+  pele_cobra:     { name:'Pele de Cobra',        icon:'🐍',  imgSrc:'Imagens/icones/materiais/peledeco.png',  type:'material',   desc:'Escamas finas de uma cobra.',      weight:0.4 },
   glandula:       { name:'Glândula Venenosa',    icon:'☠️',  imgSrc:'Imagens/icones/materiais/Glandul.png',   type:'material',   desc:'Secreta veneno potente.',          weight:0.3 },
 
   // ── Drops dos inimigos de mérito (Herói do Vilarejo+) ──
@@ -10905,7 +10905,7 @@ function showGolpeSagradoEffect() {
 }
 
 // ── Escudo Divino (Paladino) — orbe cobrindo o personagem inteiro ──
-// Frame 1: cheio (escudodivivi.png) · Frame 2: 50%, rachando (escudodivi.png)
+// Frame 1: cheio (escudodivivi.png) · Frame 2: 50%, rachando (escudoDivi.png)
 // Frame 3: explodindo (escudodiv.png). Dura 3 turnos (ver tickPlayerStatusEffects).
 const PAL_ESCUDO_FRAMES = {
   full:  'Imagens/personagens/paladino/escudodivivi.png',

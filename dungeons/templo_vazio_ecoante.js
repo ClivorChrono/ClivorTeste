@@ -50,7 +50,7 @@ const TVE_INIMIGOS = {
     loot: [
       { id:'cinza_espectral',  name:'Cinza Espectral',     icon:'🌫️', imgSrc:'Imagens/icones/materiais/Picsart_26-06-27_03-37-16-765.png', chance:1.0, weight:0.1, type:'material',  desc:'Resíduo de uma alma que se perdeu no vazio.' },
       { id:'essencia_fantasma', name:'Essência Fantasmal', icon:'💠', imgSrc:'Imagens/icones/materiais/Picsart_26-06-27_03-39-51-719.png', chance:0.9, weight:0.2, type:'material',  desc:'Substância etérea extraída de um espírito antigo. Usada em encantamentos de vazio.' },
-      { id:'pocao_media',      name:'Poção Média', icon:'🫙', imgSrc:'Imagens/cosméticos/PoçãoM.png', chance:0.65, weight:0.5, type:'consumível', desc:'Restaura 60 HP.', heal:60 },
+      { id:'pocao_media',      name:'Poção Média', icon:'🫙', imgSrc:'Imagens/cosméticos/poçãoM.png', chance:0.65, weight:0.5, type:'consumível', desc:'Restaura 60 HP.', heal:60 },
       { id:'chave_vazio',      name:'Chave do Vazio', icon:'🗝️', chance:1.0, weight:0.1, type:'material', desc:'Uma chave fria como a morte. Abre algo mais fundo no templo.' },
     ],
   },
@@ -71,7 +71,7 @@ const TVE_INIMIGOS = {
     loot: [
       { id:'eco_cristalizado', name:'Eco Cristalizado', icon:'🔮', imgSrc:'Imagens/icones/materiais/Picsart_26-06-27_03-46-47-499.png', chance:1.0, weight:0.2, type:'material', desc:'Um fragmento de som solidificado. Pulsa com uma frequência que nenhum ouvido deveria captar.' },
       { id:'fragmento_sombra', name:'Fragmento de Sombra', icon:'🌑', chance:0.75, weight:0.3, type:'material', desc:'Sombra solidificada, ainda escura por dentro.' },
-      { id:'pocao_grande',     name:'Poção Grande', icon:'⚗️', imgSrc:'Imagens/cosméticos/PoçãoG.png', chance:0.6, weight:0.5, type:'consumível', desc:'Restaura 120 HP.', heal:120 },
+      { id:'pocao_grande',     name:'Poção Grande', icon:'⚗️', imgSrc:'Imagens/cosméticos/poçãoG.png', chance:0.6, weight:0.5, type:'consumível', desc:'Restaura 120 HP.', heal:120 },
     ],
   },
 };
@@ -311,7 +311,7 @@ function temploVazioEcoante_oraculo_resultado() {
     p._tve_oraculo_buff = { atk: buffAtk };
     p.atk = (p.atk || 0) + buffAtk;
     if (typeof updateHUD === 'function') updateHUD();
-    const pocao = { id:'pocao_media', name:'Poção Média', icon:'🫙', imgSrc:'Imagens/cosméticos/PoçãoM.png', type:'consumível', desc:'Restaura 60 HP.', heal:60 };
+    const pocao = { id:'pocao_media', name:'Poção Média', icon:'🫙', imgSrc:'Imagens/cosméticos/poçãoM.png', type:'consumível', desc:'Restaura 60 HP.', heal:60 };
     if (typeof addItem === 'function') addItem(pocao, 2);
     _tve_notify('⭐ Oráculo completo! +4 ATQ e 2× Poção Média obtidos!');
     textoResultado = `<b style="color:#ffe080;">${acertos}/${total} respostas corretas.</b>\n\nO Oráculo recua. A frequência some. Algo no ar parece mais leve — como se o próprio templo reconhecesse seu valor.\n\nDuas poções pousam ao seus pés. Você sente sua determinação afiar como lâmina.\n\n<span style="color:#a0e0a0;font-size:0.78rem;">✅ +4 ATQ (buff temporário) · 2× Poção Média adicionada ao inventário</span>`;
@@ -545,7 +545,7 @@ function temploVazioEcoante_fase3_bau() {
   };
   const pocaoG = {
     id: 'pocao_grande', name: 'Poção Grande', icon: '⚗️',
-    imgSrc: 'Imagens/cosméticos/PoçãoG.png', type: 'consumível',
+    imgSrc: 'Imagens/cosméticos/poçãoG.png', type: 'consumível',
     desc: 'Restaura 120 HP.', heal: 120, weight: 0.5,
   };
   const fragmento = {

@@ -27,7 +27,7 @@ const CLASS_PALADINO = {
   growth: { hp: 16, atk: 1, def: 3, spd: 1, mag: 0, mp: 0, ap: 5 },
   startWeapon: {
     id: 'maca_sagrada', name: 'Maça Sagrada',
-    imgSrc: 'Imagens/personagens/paladino/Martelo.png', icon: '🔨',
+    imgSrc: 'Imagens/personagens/paladino/martelo.png', icon: '🔨',
     atk: 6, def: 3, spd: 0, mag: 0, weight: 3,
     desc: 'Maça abençoada pela Divina Trindade. Golpes pesados que ignoram parte da armadura inimiga.'
   },
