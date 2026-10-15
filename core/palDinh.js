@@ -11204,6 +11204,7 @@ function buildArrowBagTab() {
 window.buildArrowBagTab = buildArrowBagTab;
 
 // ── Mostrar aba flechas só para arqueiro ──
+window.openBag = window.openBag || function() { const ov = document.getElementById("bag-overlay"); if (!ov) return; ov.style.display = "flex"; if (typeof window.buildBagItems === "function") window.buildBagItems(); };
 const _origOpenBag = window.openBag;
 window.openBag = function() {
   if (typeof _origOpenBag === 'function') _origOpenBag();
